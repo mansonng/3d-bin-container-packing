@@ -32,7 +32,7 @@ public class ExtremePointsTest {
 
 		System.out.println("Four: " + extremePoints);
 
-		DrawOnImage.show(extremePoints);
+		//DrawPoints.show(extremePoints);
 
 	}
 }

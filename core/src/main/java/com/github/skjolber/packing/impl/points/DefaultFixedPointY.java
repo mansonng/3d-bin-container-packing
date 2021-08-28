@@ -1,30 +1,32 @@
 package com.github.skjolber.packing.impl.points;
 
-public class DefaultFixedPointY extends Point implements FixedPointX  {
+public class DefaultFixedPointY extends Point implements FixedPointY {
 
-	/** range constrained to current minX */
-	private int fixedMinY;
-	private int fixedMaxY;
+	/** range constrained to current minY */
+	private int fixedMinX;
+	private int fixedMaxX;
 	
-	public DefaultFixedPointY(int minX, int minY, int maxY, int maxX, int fixedY, int fixedYy) {
+	public DefaultFixedPointY(int minX, int minY, int maxY, int maxX, int fixedX, int fixedXx) {
 		super(minX, minY, maxY, maxX);
-		this.fixedMinY = fixedY;
-		this.fixedMaxY = fixedYy;
+		this.fixedMinX = fixedX;
+		this.fixedMaxX = fixedXx;
 	}
+	
 	@Override
 	public boolean isFixedY() {
-		return false;
+		return true;
 	}
 	@Override
 	public boolean isFixedX() {
-		return true;
-	}
-
-	public int getFixedMinY() {
-		return fixedMinY;
+		return false;
 	}
 	
-	public int getFixedMaxY() {
-		return fixedMaxY;
+	public int getFixedMinX() {
+		return fixedMinX;
 	}
+	
+	public int getFixedMaxX() {
+		return fixedMaxX;
+	}
+
 }

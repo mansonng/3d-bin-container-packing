@@ -46,5 +46,13 @@ public abstract class Point implements Comparable<Point>{
 		}
 		return x;
 	}
+	
+	public void setMaxX(int maxX) {
+		this.maxX = maxX;
+	}
+	
+	public void setMaxY(int maxY) {
+		this.maxY = maxY;
+	}
 
 }

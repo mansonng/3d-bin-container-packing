@@ -5,12 +5,12 @@ import java.awt.image.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import com.github.skjolber.packing.impl.ExtremePoint;
-import com.github.skjolber.packing.impl.ExtremePoints;
+import com.github.skjolber.packing.Box;
+import com.github.skjolber.packing.Placement;
+import com.github.skjolber.packing.Space;
 
-
-public class DrawOnImage
-{
+public class DrawPoints {
+	
 	public static void show(ExtremePoints p) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -19,40 +19,37 @@ public class DrawOnImage
 		});
 	}
 	
+	private static Placement createPlacement(Point extremePoint, int dx, int dy) {
+		Placement placement = new Placement(new Space(null, null, dx, dy, 0, extremePoint.getMinX(), extremePoint.getMinY(), 0));
+		Box b = new Box(dx, dy, 0, 0);
+		placement.setBox(b);
+		return placement;
+	}
+	
 	public static void main(String[] args) {
 		ExtremePoints extremePoints = new ExtremePoints(1000, 1000);
 		
-		ExtremePoint extremePoint = extremePoints.getValues().get(0);
-		extremePoints.add(extremePoint, 50, 100);
+		Point extremePoint = extremePoints.getValues().get(0);
+		extremePoints.add(extremePoint, createPlacement(extremePoint, 50, 100));
 
 		System.out.println("One: " + extremePoints);
-		
-		ExtremePoint extremePoint2 = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
-		extremePoints.add(extremePoint2, 50, 50);
-		
-		/*
-		System.out.println("Two: " + extremePoints);
-		
-		ExtremePoint extremePoint3 = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
-		extremePoints.add(extremePoint3, 50, 50);
 
-		System.out.println("Three: " + extremePoints);
+		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
+		extremePoints.add(extremePoint, createPlacement(extremePoint, 50, 50));
 
-		ExtremePoint extremePoint4 = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
-		extremePoints.add(extremePoint4, 50, 25);
+		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 2);
+		extremePoints.add(extremePoint, createPlacement(extremePoint, 100, 100));
 
-		System.out.println("Four: " + extremePoints);
-*/
-		ExtremePoint extremePoint5 = extremePoints.getValues().get(1);
-		extremePoints.add(extremePoint5, 75, 75);
+		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
+		extremePoints.add(extremePoint, createPlacement(extremePoint, 20, 20));
 
-		ExtremePoint extremePoint4 = extremePoints.getValues().get(extremePoints.getValues().size() - 2);
-		extremePoints.add(extremePoint4, 10, 10);
+		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
+		extremePoints.add(extremePoint, createPlacement(extremePoint, 20, 30));
 
-		ExtremePoint extremePoint6 = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
-		//extremePoints.add(extremePoint6, 10, 20);
-		
-		DrawOnImage.show(extremePoints);
+		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 4);
+		extremePoints.add(extremePoint, createPlacement(extremePoint, 20, 30));
+
+		DrawPoints.show(extremePoints);
 	}
 	
     public static final Color blue      = new Color(200, 222, 255);
@@ -60,27 +57,33 @@ public class DrawOnImage
 	private static void init(ExtremePoints p) {
 		DrawingArea drawingArea = new DrawingArea(p.getWidth(), p.getDepth());
 
-		for (ExtremePoint extremePoint : p.getValues()) {
-			if(extremePoint.getXx() != p.getWidth() || extremePoint.getYy() != p.getDepth()) {
-				System.out.println("Paint blue " + extremePoint.getX() + "x" + extremePoint.getY() + " " + extremePoint.getXx() + "x" + extremePoint.getYy());
-				drawingArea.fillRect(extremePoint.getX(), extremePoint.getY(), extremePoint.getXx(), extremePoint.getYy(), blue);
+		for (Point extremePoint : p.getValues()) {
+			if(extremePoint.getMaxX() != p.getWidth() || extremePoint.getMaxY() != p.getDepth()) {
+				System.out.println("Paint blue " + extremePoint.getMinX() + "x" + extremePoint.getMinY() + " " + extremePoint.getMaxX() + "x" + extremePoint.getMaxY());
+				drawingArea.fillRect(extremePoint.getMinX(), extremePoint.getMinY(), extremePoint.getMaxX(), extremePoint.getMaxY(), blue);
 			}
 		}
 		
-		for (ExtremePoint extremePoint : p.getValues()) {
-			if(extremePoint.getXx() == p.getWidth() && extremePoint.getYy() == p.getDepth()) {
-				System.out.println("Paint white " + extremePoint.getX() + "x" + extremePoint.getY() + " " + extremePoint.getXx() + "x" + extremePoint.getYy());
-				
-				drawingArea.fillRect(extremePoint.getX(), extremePoint.getY(), extremePoint.getXx(), extremePoint.getYy(), Color.white);
+		for (Point extremePoint : p.getValues()) {
+			if(extremePoint.getMaxX() == p.getWidth() && extremePoint.getMaxY() == p.getDepth()) {
+				System.out.println("Paint white " + extremePoint.getMinX() + "x" + extremePoint.getMinY() + " " + extremePoint.getMaxX() + "x" + extremePoint.getMaxY());
+				drawingArea.fillRect(extremePoint.getMinX(), extremePoint.getMinY(), extremePoint.getMaxX(), extremePoint.getMaxY(), Color.white);
 			}
 		}
 
-		for (ExtremePoint extremePoint : p.getAllPoints()) {
-			drawingArea.addRectangle(extremePoint.getItemX(), extremePoint.getItemY(), extremePoint.getItemXx(), extremePoint.getItemYy(), Color.green);
-			drawingArea.addDashedLine(extremePoint.getItemX(), extremePoint.getItemY(), extremePoint.getItemXx(), extremePoint.getItemYy(), Color.red);
+		for (Placement extremePoint : p.getPlacements()) {
+			drawingArea.addRectangle(extremePoint.getAbsoluteX(), extremePoint.getAbsoluteY(), extremePoint.getAbsoluteEndX(), extremePoint.getAbsoluteEndY(), Color.green);
+			drawingArea.addDashedLine(extremePoint.getAbsoluteX(), extremePoint.getAbsoluteY(), extremePoint.getAbsoluteEndX(), extremePoint.getAbsoluteEndY(), Color.red);
 		}
 
-		for (ExtremePoint extremePoint : p.getValues()) {
+		for (Point extremePoint : p.getValues()) {
+			
+			Color c = Color.black;
+			drawingArea.addCircle(extremePoint.getMinX(), extremePoint.getMinY(), c);
+		}
+
+		/*
+		for (Point extremePoint : p.getValues()) {
 			
 			Color c = Color.black;
 			
@@ -92,7 +95,7 @@ public class DrawOnImage
 			drawingArea.addDashedLine(extremePoint.getX(), extremePoint.getY(), extremePoint.getX(), extremePoint.getYy(), Color.blue);
 			drawingArea.addDashedLine(extremePoint.getXx(), extremePoint.getY(), extremePoint.getXx(), extremePoint.getY(), Color.blue);
 		}
-
+*/
 		drawingArea.addGuide(0, -5, p.getWidth(), -5, Color.blue);
 
 		JFrame.setDefaultLookAndFeelDecorated(true);
