@@ -62,14 +62,14 @@ public class DrawOnImage
 
 		for (ExtremePoint extremePoint : p.getValues()) {
 			if(extremePoint.getXx() != p.getWidth() || extremePoint.getYy() != p.getDepth()) {
-				System.out.println("Paint blue " + extremePoint.getX() + "x" + extremePoint.getY() + " " + extremePoint.getXx() + "x" + extremePoint.getYy());
+				//System.out.println("Paint blue " + extremePoint.getX() + "x" + extremePoint.getY() + " " + extremePoint.getXx() + "x" + extremePoint.getYy());
 				drawingArea.fillRect(extremePoint.getX(), extremePoint.getY(), extremePoint.getXx(), extremePoint.getYy(), blue);
 			}
 		}
 		
 		for (ExtremePoint extremePoint : p.getValues()) {
 			if(extremePoint.getXx() == p.getWidth() && extremePoint.getYy() == p.getDepth()) {
-				System.out.println("Paint white " + extremePoint.getX() + "x" + extremePoint.getY() + " " + extremePoint.getXx() + "x" + extremePoint.getYy());
+				//System.out.println("Paint white " + extremePoint.getX() + "x" + extremePoint.getY() + " " + extremePoint.getXx() + "x" + extremePoint.getYy());
 				
 				drawingArea.fillRect(extremePoint.getX(), extremePoint.getY(), extremePoint.getXx(), extremePoint.getYy(), Color.white);
 			}

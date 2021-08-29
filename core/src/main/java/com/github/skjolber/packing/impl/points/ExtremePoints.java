@@ -27,12 +27,19 @@ public class ExtremePoints {
 		values.add(new DefaultFixedPointXY(0, 0, width, depth, 0, width, 0, depth));
 	}
 	
-	public boolean add(Point source, Placement placement) {
+	public boolean add(int index, Placement placement) {
 		
+		Point source = values.get(index);
+		
+		System.out.println();
+		System.out.println("**************************************");
 		System.out.println("Add " + source.getMinX() + "x" + source.getMinY() + " " + placement.getBox().getWidth() + "x" + placement.getBox().getDepth());
 		
 		int xx = source.getMinX() + placement.getBox().getWidth();
 		int yy = source.getMinY() + placement.getBox().getDepth();
+		
+		Point dx = null;
+		Point dy = null;
 		
 		if(source.isFixedY() && source.isFixedX()) {
 			FixedPointY fixedPointY = (FixedPointY)source;
@@ -70,7 +77,7 @@ public class ExtremePoints {
 				//      |--------------------------
 				//                    xx   fmaxX
 
-				values.add(new DefaultFixedPointXY(xx, source.getMinY(), source.getMaxX(), source.getMaxY(), xx, fixedPointY.getFixedMaxX(), source.getMinY(), yy));
+				dx = new DefaultFixedPointXY(xx, source.getMinY(), width, depth, xx, fixedPointY.getFixedMaxX(), source.getMinY(), yy);
 				
 				// using dy
 				//
@@ -87,7 +94,7 @@ public class ExtremePoints {
 				//       |--------------------------
 				//           minX      xx    
 
-				values.add(new DefaultFixedPointXY(source.getMinX(), yy, source.getMaxX(), source.getMaxY(),  source.getMinX(), xx, yy, fixedPointX.getFixedMaxY()));
+				dy = new DefaultFixedPointXY(source.getMinX(), yy, width, depth,  source.getMinX(), xx, yy, fixedPointX.getFixedMaxY());
 				
 				
 			} else if(xx < fixedPointY.getFixedMaxX()) {
@@ -110,12 +117,11 @@ public class ExtremePoints {
 				//       |----|---------------|-----
 				//           minX      xx    fmaxX
 				
-				
 				// using dx
-				values.add(new DefaultFixedPointXY(xx, source.getMinY(), source.getMaxX(), source.getMaxY(), xx, fixedPointY.getFixedMaxX(), source.getMinY(), yy));
+				dx = new DefaultFixedPointXY(xx, source.getMinY(), width, depth, xx, fixedPointY.getFixedMaxX(), source.getMinY(), yy);
 
 				// using dy
-				unsupportedDy(source, xx, yy);
+				dy = unsupportedDy(source, xx, yy);
 			} else if(yy < fixedPointX.getFixedMaxY()) {
 
 				System.out.println("Fixed dy");
@@ -134,10 +140,10 @@ public class ExtremePoints {
 				//          minX            maxX
 
 				// using dy
-				values.add(new DefaultFixedPointXY(source.getMinX(), yy, source.getMaxX(), source.getMaxY(),  source.getMinX(), xx, yy, fixedPointX.getFixedMaxY()));
+				dy = new DefaultFixedPointXY(source.getMinX(), yy, width, depth,  source.getMinX(), xx, yy, fixedPointX.getFixedMaxY());
 
 				// using dx
-				unsupportedDx(source, xx, yy);
+				dx = unsupportedDx(source, xx, yy);
 				
 			} else {
 
@@ -157,8 +163,8 @@ public class ExtremePoints {
 				//      |----|---------------|-------------	
 				//          minX            maxX     yy
 				
-				unsupportedDx(source, xx, yy);
-				unsupportedDy(source, xx, yy);
+				dx = unsupportedDx(source, xx, yy);
+				dy = unsupportedDy(source, xx, yy);
 			}
 			
 		} else if(source.isFixedY()) {
@@ -185,14 +191,14 @@ public class ExtremePoints {
 				//           minX      xx    fmaxX				
 				
 				// using dx
-				values.add(new DefaultFixedPointXY(xx, source.getMinY(), source.getMaxX(), source.getMaxY(), xx, fixedPointY.getFixedMaxX(), source.getMinY(), yy));
+				dx = new DefaultFixedPointXY(xx, source.getMinY(), width, depth, xx, fixedPointY.getFixedMaxX(), source.getMinY(), yy);
 				
-				unsupportedDy(source, xx, yy);
+				dy = unsupportedDy(source, xx, yy);
 			} else {
 				System.out.println("Is not fixed y");
 
-				unsupportedDx(source, xx, yy);
-				unsupportedDy(source, xx, yy);
+				dx = unsupportedDx(source, xx, yy);
+				dy = unsupportedDy(source, xx, yy);
 			}
 		} else if(source.isFixedX()) {
 			System.out.println("Could be fixed x");
@@ -200,72 +206,127 @@ public class ExtremePoints {
 			FixedPointX fixedPointX = (FixedPointX)source;
 			if(yy < fixedPointX.getFixedMaxY()) {
 				
+				System.out.println("Fixed x, unsupported y");
 				//
 				// maxY |----|
-				//      |    |        dx
-				//      |    |-------------------|
+				//      |    |                  xx
+				//      |    |-------------------| yy
 				//      |    |                   |
-				//      |    |                   | dy
+				//      |    |                   | 
 				//      |    |                   |
 				// minY |    |--------------------
-				//      |    |               |
-				//      |    |               |
-				//      |----|---------------|-----
-				//          minX            maxX
+				//      |                   
+				//      |                   
+				//      |--------------------------
+				//                          
 
 				// using dy
-				values.add(new DefaultFixedPointXY(source.getMinX(), yy, source.getMaxX(), source.getMaxY(),  source.getMinX(), xx, yy, fixedPointX.getFixedMaxY()));
+				values.add(new DefaultFixedPointXY(source.getMinX(), yy, width, depth,  source.getMinX(), xx, yy, fixedPointX.getFixedMaxY()));
 
-				unsupportedDx(source, xx, yy);
-				
+				dx = unsupportedDx(source, xx, yy);
 			} else {
-				unsupportedDx(source, xx, yy);
-				unsupportedDy(source, xx, yy);
+				System.out.println("Not fixed x or y");
+				dx = unsupportedDx(source, xx, yy);
+				dy = unsupportedDy(source, xx, yy);
 			}
 		} else {
 			System.out.println("Not fixed any way");
 			
-			unsupportedDx(source, xx, yy);
-			unsupportedDy(source, xx, yy);
+			dx = unsupportedDx(source, xx, yy);
+			dy = unsupportedDy(source, xx, yy);
 		}
 
-		values.remove(source);
-		
-		placements.add(placement);
-		Collections.sort(values);
+		values.remove(index);
 		
 		for (int i = 0; i < values.size(); i++) {
 			Point point = values.get(i);
 			
-			int maxX = projectRight(point.getMinX(), point.getMinY());
-			int maxY = projectUp(point.getMinX(), point.getMinY() );
-			
-			if(maxX <= point.getMinX() || maxY <= point.getMinY()) {
+			if(!project(point, placement)) {
 				System.out.println("Remove " + point.getMinX() + "x" + point.getMinY());
-				System.out.println("Because " + maxX + "x" + maxY);
 				values.remove(i);
 				i--;
-			} else {
-				point.setMaxX(maxX);
-				point.setMaxY(maxY);
 			}
 		}
+
+		if(dy != null) {
+			project(dy);
+		}
+		if(dx != null) {
+			project(dx);
+		}
+
+		if(dy != null) {
+			project(dy);
+			values.add(index, dy);
+			index++;
+		}
+		if(dx != null) {
+			values.add(index, dx);
+		}
 		
+		placements.add(placement);
+		Collections.sort(values);
 		System.out.println("Now have " + values.size());
 		
-		for (Point point2 : values) {
-			System.out.println(point2.getMinX() + "x" + point2.getMinY());
+		for (int j = 0; j < values.size(); j++) {
+			Point point2 = values.get(j);
+			
+			System.out.println(j + " " + point2.getMinX() + "x" + point2.getMinY() + " " + point2.getClass().getSimpleName());
 		}
 		
 		return !values.isEmpty();
 	}
 
-	private void unsupportedDx(Point source, int xx, int yy) {
+	private boolean project(Point point, Placement placement) {
+		int maxX = projectRight(point.getMinX(), point.getMinY(), placement, point.getMaxX());
+		int maxY = projectUp(point.getMinX(), point.getMinY(), placement, point.getMaxY());
+		
+		if(maxX <= point.getMinX() || maxY <= point.getMinY()) {
+			return false;
+		} else {
+			point.setMaxX(maxX);
+			point.setMaxY(maxY);
+		}
+
+		return true;
+	}
+
+	private int projectUp(int minX, int minY, Placement placement, int maxY) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private int projectRight(int minX, int minY, Placement placement, int maxX) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	private boolean project(Point point) {
+		int maxX = projectRight(point.getMinX(), point.getMinY());
+		int maxY = projectUp(point.getMinX(), point.getMinY() );
+		
+		if(maxX <= point.getMinX() || maxY <= point.getMinY()) {
+			return false;
+		} else {
+			point.setMaxX(maxX);
+			point.setMaxY(maxY);
+		}
+
+		return true;
+	}
+
+	private Point unsupportedDx(Point source, int xx, int yy) {
+		System.out.println("Add unsupported dx");
 		Placement moveY = projectDownRight(xx, yy);
 		if(moveY == null) {
 			
+			System.out.println(" all the way");
+			
 			// supported one way (by container border)
 			//
+			//      |    |-------------------|
+			//      |    |                   |
+			//      |    |                   |
 			//      |    |                   |
 			// minY |    |--------------------
 			//      |    |               |   |
@@ -273,14 +334,19 @@ public class ExtremePoints {
 			//      |----|---------------|---*-----
 			//          minX            maxX
 			
-			values.add(new DefaultFixedPointY(xx, 0, source.getMaxX(), source.getMaxY(), xx, width));
+			return new DefaultFixedPointY(xx, 0, width, depth, xx, width);
 			
 		} else if(moveY.getAbsoluteEndY() < source.getMinY()) {
+
+			System.out.println(" directly below");
 
 			if(moveY.getAbsoluteX() <= xx && xx < moveY.getAbsoluteEndX() ) {
 
 				// supported one way
 				//
+				//      |    |-------------------|
+				//      |    |                   |
+				//      |    |                   |
 				//      |    |                   |
 				// minY |    |--------------------
 				//      |    |               |   ↓
@@ -289,12 +355,19 @@ public class ExtremePoints {
 				//      |----|---------------|---|--------|--------
 				//          minX            maxX
 	
-				values.add(new DefaultFixedPointY(xx, moveY.getAbsoluteEndY(), source.getMaxX(), source.getMaxY(), xx, moveY.getAbsoluteEndX()));
+				System.out.println(" directly below one way");
+
+				return new DefaultFixedPointY(xx, moveY.getAbsoluteEndY(), width, depth, xx, moveY.getAbsoluteEndX());
 
 			} else {
-				
+
+				System.out.println(" below no ways");
+
 				// unsupported both ways
 				//
+				//      |    |-------------------|
+				//      |    |                   |
+				//      |    |                   |
 				//      |    |                   |
 				// minY |    |--------------------
 				//      |    |               |   ↓
@@ -303,15 +376,19 @@ public class ExtremePoints {
 				//      |----|---------------|--------|--------|--------
 				//          minX            maxX
 
-				values.add(new DefaultPoint(xx, moveY.getAbsoluteEndY(), source.getMaxX(), source.getMaxY()));
+				return new DefaultPoint(xx, moveY.getAbsoluteEndY(), width, depth);
 			}
 			
 		} else {
 
 			if(moveY.getAbsoluteX() <= xx && xx < moveY.getAbsoluteEndX() ) {
 				
+				System.out.println("Supported both ways");
 				// supported both ways
 				// 
+				//      |    |-------------------|
+				//      |    |                   |
+				//      |    |                   |
 				//      |    |                   |
 				//      |    |                   ↓
 				//      |    |                   *--------|
@@ -323,11 +400,15 @@ public class ExtremePoints {
 				//      |----|---------------|---|--------|--------
 				//          minX            maxX
 	
-				values.add(new DefaultFixedPointXY(xx, moveY.getAbsoluteEndY(), source.getMaxX(), source.getMaxY(), xx, moveY.getAbsoluteEndX(), moveY.getAbsoluteEndY(), yy));
+				return new DefaultFixedPointXY(xx, moveY.getAbsoluteEndY(), width, depth, xx, moveY.getAbsoluteEndX(), moveY.getAbsoluteEndY(), yy);
 			} else {
 
+				System.out.println("Supported one way");
 				// supported one way
 				//
+				//      |    |-------------------|
+				//      |    |                   |
+				//      |    |                   |
 				//      |    |                   |
 				//      |    |                   ↓
 				//      |    |                   *  |-------|
@@ -339,13 +420,14 @@ public class ExtremePoints {
 				//      |----|---------------|------|-------|--------
 				//          minX            maxX
 
-				values.add(new DefaultPoint(xx, moveY.getAbsoluteEndY(), source.getMaxX(), source.getMaxY()));
-
+				return new DefaultFixedPointX(xx, moveY.getAbsoluteEndY(), width, depth, moveY.getAbsoluteEndY(), yy);
 			}
 		}
 	}
 
-	private void unsupportedDy(Point source, int xx, int yy) {
+	private Point unsupportedDy(Point source, int xx, int yy) {
+		System.out.println("Add unsupported dy");
+		
 		Placement moveX = projectLeftTop(xx, yy);
 		if(moveX == null) {
 			
@@ -358,7 +440,7 @@ public class ExtremePoints {
 			// fmaxY |----|        |
 			//
 			
-			values.add(new DefaultFixedPointX(0, yy, source.getMaxX(), source.getMaxY(), yy, depth));
+			return new DefaultFixedPointX(0, yy, width, depth, yy, depth);
 		} else if(moveX.getAbsoluteEndX() < source.getMinX()) {
 			
 			if(moveX.getAbsoluteY() <= yy && yy < moveX.getAbsoluteEndY()) {
@@ -373,7 +455,7 @@ public class ExtremePoints {
 				//
 				//       aendx
 				
-				values.add(new DefaultFixedPointX(moveX.getAbsoluteEndX(), yy, source.getMaxX(), source.getMaxY(), yy, moveX.getAbsoluteEndY()));
+				return new DefaultFixedPointX(moveX.getAbsoluteEndX(), yy, width, depth, yy, moveX.getAbsoluteEndY());
 			} else {
 
 				// unsupported both ways
@@ -389,7 +471,7 @@ public class ExtremePoints {
 				//
 				//       aendx
 
-				values.add(new DefaultPoint(moveX.getAbsoluteEndX(), yy, source.getMaxX(), source.getMaxY()));
+				return new DefaultPoint(moveX.getAbsoluteEndX(), yy, width, depth);
 			}
 
 		} else {
@@ -408,7 +490,7 @@ public class ExtremePoints {
 				//
 				//             aendx
 				
-				values.add(new DefaultFixedPointXY(moveX.getAbsoluteX(), yy, source.getMaxX(), source.getMaxY(),  moveX.getAbsoluteEndX(), xx, yy, moveX.getAbsoluteEndY()));
+				return new DefaultFixedPointXY(moveX.getAbsoluteX(), yy, width, depth,  moveX.getAbsoluteEndX(), xx, yy, moveX.getAbsoluteEndY());
 			} else {
 
 				// unsupported one way
@@ -425,7 +507,7 @@ public class ExtremePoints {
 				//
 				//             aendx
 
-				values.add(new DefaultFixedPointY(moveX.getAbsoluteEndX(), yy, source.getMaxX(), source.getMaxY(), moveX.getAbsoluteEndX(), xx));
+				return new DefaultFixedPointY(moveX.getAbsoluteEndX(), yy, width, depth, moveX.getAbsoluteEndX(), xx);
 			}
 		}
 	}
@@ -457,7 +539,6 @@ public class ExtremePoints {
 		//               |
 		//            absEndX
 		//
-		// excluded:
 		//
 		//         |
 		// absEndy-|-----------|
@@ -474,7 +555,9 @@ public class ExtremePoints {
 		
 		Placement rightmost = null;
 		for (Placement placement : placements) {
-			if(placement.getAbsoluteEndY() >= y && placement.getAbsoluteEndX() <= x) {
+			if(placement.getAbsoluteEndY() >= y && placement.getAbsoluteX() < x) {
+				
+				// most to the right
 				if(rightmost == null || placement.getAbsoluteEndX() > rightmost.getAbsoluteEndX()) {
 					rightmost = placement;
 				}
@@ -506,7 +589,6 @@ public class ExtremePoints {
 		//                      |     |
 		//                    absX absEndX
 		//
-		// excluded:
 		// |                  
 		// |                 *
 		// |              |------------| absEndY
@@ -518,8 +600,10 @@ public class ExtremePoints {
 		
 		Placement leftmost = null;
 		for (Placement placement : placements) {
-			if(placement.getAbsoluteY() <= y && placement.getAbsoluteX() >= x) {
-				if(leftmost == null || placement.getAbsoluteX() < leftmost.getAbsoluteX()) {
+			if(placement.getAbsoluteY() <= y && placement.getAbsoluteEndX() > x) {
+				
+				// the highest
+				if(leftmost == null || placement.getAbsoluteEndY() > leftmost.getAbsoluteEndY()) {
 					leftmost = placement;
 				}
 			}

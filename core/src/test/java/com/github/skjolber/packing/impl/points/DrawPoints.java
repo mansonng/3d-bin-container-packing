@@ -30,24 +30,30 @@ public class DrawPoints {
 		ExtremePoints extremePoints = new ExtremePoints(1000, 1000);
 		
 		Point extremePoint = extremePoints.getValues().get(0);
-		extremePoints.add(extremePoint, createPlacement(extremePoint, 50, 100));
+		extremePoints.add(0, createPlacement(extremePoint, 50, 100));
 
 		System.out.println("One: " + extremePoints);
 
 		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
-		extremePoints.add(extremePoint, createPlacement(extremePoint, 50, 50));
+		extremePoints.add(extremePoints.getValues().size() - 1, createPlacement(extremePoint, 50, 50));
 
 		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 2);
-		extremePoints.add(extremePoint, createPlacement(extremePoint, 100, 100));
+		extremePoints.add(extremePoints.getValues().size() - 2, createPlacement(extremePoint, 100, 100));
 
 		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
-		extremePoints.add(extremePoint, createPlacement(extremePoint, 20, 20));
+		extremePoints.add(extremePoints.getValues().size() - 1, createPlacement(extremePoint, 20, 20));
 
 		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 1);
-		extremePoints.add(extremePoint, createPlacement(extremePoint, 20, 30));
+		extremePoints.add(extremePoints.getValues().size() - 1, createPlacement(extremePoint, 20, 30));
 
 		extremePoint = extremePoints.getValues().get(extremePoints.getValues().size() - 4);
-		extremePoints.add(extremePoint, createPlacement(extremePoint, 20, 30));
+		extremePoints.add(extremePoints.getValues().size() - 4, createPlacement(extremePoint, 20, 30));
+
+		extremePoint = extremePoints.getValues().get(1);
+		extremePoints.add(1, createPlacement(extremePoint, 20, 20));
+
+		extremePoint = extremePoints.getValues().get(2);
+		extremePoints.add(2, createPlacement(extremePoint, 10, 10));
 
 		DrawPoints.show(extremePoints);
 	}
@@ -59,8 +65,16 @@ public class DrawPoints {
 
 		for (Point extremePoint : p.getValues()) {
 			if(extremePoint.getMaxX() != p.getWidth() || extremePoint.getMaxY() != p.getDepth()) {
-				System.out.println("Paint blue " + extremePoint.getMinX() + "x" + extremePoint.getMinY() + " " + extremePoint.getMaxX() + "x" + extremePoint.getMaxY());
-				drawingArea.fillRect(extremePoint.getMinX(), extremePoint.getMinY(), extremePoint.getMaxX(), extremePoint.getMaxY(), blue);
+				Color c;
+				if(extremePoint.getMaxX() != p.getWidth() && extremePoint.getMaxY() != p.getDepth()) {
+					c = Color.red;
+				} else if(extremePoint.getMaxX() != p.getWidth()) {
+					c = Color.blue;
+				} else { // if(extremePoint.getMaxY() != p.getDepth()) {
+					c = Color.yellow;
+				}
+				drawingArea.fillRect(extremePoint.getMinX(), extremePoint.getMinY(), extremePoint.getMaxX(), extremePoint.getMaxY(), c);
+				System.out.println("Paint constrained " + extremePoint.getMinX() + "x" + extremePoint.getMinY() + " " + extremePoint.getMaxX() + "x" + extremePoint.getMaxY());
 			}
 		}
 		
