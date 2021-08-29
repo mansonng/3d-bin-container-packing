@@ -237,51 +237,46 @@ public class ExtremePoints {
 		}
 
 		values.remove(index);
+		if(index != 0) {
+			index--;
+		}
 		
+		// Constrain max values to the new placement
 		for (int i = 0; i < values.size(); i++) {
 			Point point = values.get(i);
 			
-			if(!project(point, placement)) {
-				System.out.println("Remove " + point.getMinX() + "x" + point.getMinY());
+			if(!constrainMax(point, placement)) {
 				values.remove(i);
 				i--;
 			}
 		}
 
+		// constrain 
 		if(dy != null) {
-			project(dy);
+			if(constrainMax(dy)) {
+				values.add(index, dy);
+				index++;
+			}
 		}
 		if(dx != null) {
-			project(dx);
+			if(constrainMax(dx)) {
+				values.add(index, dx);
+			}
 		}
 
-		if(dy != null) {
-			project(dy);
-			values.add(index, dy);
-			index++;
-		}
-		if(dx != null) {
-			values.add(index, dx);
-		}
-		
 		placements.add(placement);
 		Collections.sort(values);
-		System.out.println("Now have " + values.size());
-		
-		for (int j = 0; j < values.size(); j++) {
-			Point point2 = values.get(j);
-			
-			System.out.println(j + " " + point2.getMinX() + "x" + point2.getMinY() + " " + point2.getClass().getSimpleName());
-		}
-		
+
 		return !values.isEmpty();
 	}
 
-	private boolean project(Point point, Placement placement) {
+	private boolean constrainMax(Point point, Placement placement) {
 		int maxX = projectRight(point.getMinX(), point.getMinY(), placement, point.getMaxX());
 		int maxY = projectUp(point.getMinX(), point.getMinY(), placement, point.getMaxY());
 		
 		if(maxX <= point.getMinX() || maxY <= point.getMinY()) {
+			System.out.println("Remove " + point.getMinX() + "x" + point.getMinY() + " due to " + maxX + "x" + maxY);
+
 			return false;
 		} else {
 			point.setMaxX(maxX);
@@ -291,17 +286,30 @@ public class ExtremePoints {
 		return true;
 	}
 
-	private int projectUp(int minX, int minY, Placement placement, int maxY) {
-		// TODO Auto-generated method stub
-		return 0;
+	private int projectUp(int x, int y, Placement placement, int maxY) {
+		if(placement.getAbsoluteY() >= y) {
+			if(placement.getAbsoluteX() <= x && x < placement.getAbsoluteEndX()) {
+				if(placement.getAbsoluteY() < maxY) {
+					maxY = placement.getAbsoluteY();
+				}
+			}
+		}
+		
+		return maxY;
 	}
 
-	private int projectRight(int minX, int minY, Placement placement, int maxX) {
-		// TODO Auto-generated method stub
-		return 0;
+	private int projectRight(int x, int y, Placement placement, int maxX) {
+		if(placement.getAbsoluteX() >= x) {
+			if(placement.getAbsoluteY() <= y && y < placement.getAbsoluteEndY()) {
+				if(placement.getAbsoluteX() < maxX) {
+					maxX = placement.getAbsoluteX();
+				}
+			}
+		}
+		return maxX;
 	}
 
-	private boolean project(Point point) {
+	private boolean constrainMax(Point point) {
 		int maxX = projectRight(point.getMinX(), point.getMinY());
 		int maxY = projectUp(point.getMinX(), point.getMinY() );
 		
